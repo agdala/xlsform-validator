@@ -540,7 +540,7 @@ ilegível ou configuração inválida. Isso permite usar a ferramenta em qualque
 
 O workflow [`.github/workflows/validar-formularios.yml`](.github/workflows/validar-formularios.yml):
 
-1. dispara em pull requests que adicionam ou alteram arquivos `.xlsx` em `forms/`;
+1. roda em todo pull request e identifica os arquivos `.xlsx` adicionados ou alterados em `forms/`;
 2. valida **só os arquivos novos ou alterados**, com ODK Validate;
 3. publica o relatório como **um único comentário no PR**, atualizado a cada novo push;
 4. grava o relatório no resumo do job e como artefato;
