@@ -1,0 +1,583 @@
+{
+  "tool": "xlsform-validator",
+  "version": "0.1.0",
+  "generated_at": "2026-11-02T13:58:29+00:00",
+  "files": [
+    {
+      "file": "examples/abrigo_ruim.xlsx",
+      "status": "reprovado",
+      "read_error": null,
+      "summary": {
+        "errors": 26,
+        "warnings": 11,
+        "rules_checked": 35,
+        "rules_failed": 26
+      },
+      "rules": [
+        {
+          "rule_id": "EST-01",
+          "group": "Estrutura",
+          "severity": "erro",
+          "description": "As abas survey e choices existem (choices só é exigida se houver perguntas de múltipla escolha).",
+          "why_it_matters": "Sem essas abas, com o nome exato em minúsculas, o KoboToolbox e o ODK não conseguem carregar o formulário.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "EST-02",
+          "group": "Estrutura",
+          "severity": "erro",
+          "description": "A aba settings existe.",
+          "why_it_matters": "É na settings que ficam o identificador e a versão do formulário. A especificação a trata como opcional, mas sem ela o form_id passa a depender do nome do arquivo e as versões não ficam rastreáveis.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "EST-03",
+          "group": "Estrutura",
+          "severity": "erro",
+          "description": "A aba survey tem as colunas type, name e label (ou label::idioma).",
+          "why_it_matters": "São as colunas obrigatórias da especificação XLSForm; sem elas o formulário não é convertido.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "EST-04",
+          "group": "Estrutura",
+          "severity": "erro",
+          "description": "A aba choices tem as colunas list_name (ou \"list name\"), name e label.",
+          "why_it_matters": "Sem essas colunas as listas de opções não são associadas às perguntas.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "EST-05",
+          "group": "Estrutura",
+          "severity": "erro",
+          "description": "A aba settings tem form_id e version preenchidos.",
+          "why_it_matters": "O form_id identifica o formulário no servidor e a version distingue os dados coletados com cada revisão. Sem eles, dados de versões diferentes se misturam e não é possível saber qual pergunta cada pessoa viu.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O campo 'version' não está preenchido na aba 'settings'.",
+              "sheet": "settings",
+              "row": 2,
+              "suggestion": "Crie a coluna version com a data e a revisão, ex.: 2026110201."
+            }
+          ]
+        },
+        {
+          "rule_id": "EST-06",
+          "group": "Estrutura",
+          "severity": "aviso",
+          "description": "A version segue o padrão aaaammddrr (data + número da revisão).",
+          "why_it_matters": "Um padrão único permite ordenar versões e saber quando cada uma foi publicada.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "EST-07",
+          "group": "Estrutura",
+          "severity": "erro",
+          "description": "Toda pergunta tem label (metadados, calculate, hidden e grupos são exceção).",
+          "why_it_matters": "Uma pergunta sem texto aparece em branco para o enumerador, que vai improvisar a pergunta.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A pergunta 'observacoes' (tipo text) não tem label.",
+              "sheet": "survey",
+              "row": 15,
+              "suggestion": "Escreva o texto da pergunta exatamente como deve ser lido."
+            }
+          ]
+        },
+        {
+          "rule_id": "NOM-01",
+          "group": "Nomes de variáveis",
+          "severity": "erro",
+          "description": "Os nomes das perguntas são únicos.",
+          "why_it_matters": "Dois campos com o mesmo nome viram a mesma coluna na base; um sobrescreve o outro ou o formulário não converte.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O nome 'abrigo' já foi usado na linha 6.",
+              "sheet": "survey",
+              "row": 14,
+              "suggestion": "Dê um nome diferente para cada pergunta."
+            }
+          ]
+        },
+        {
+          "rule_id": "NOM-02",
+          "group": "Nomes de variáveis",
+          "severity": "erro",
+          "description": "Os nomes estão em snake_case (minúsculas, números e \"_\", começando por letra).",
+          "why_it_matters": "Nomes padronizados evitam erros em scripts de análise (R, Python, Stata, Power BI), que diferenciam maiúsculas e minúsculas e tratam hífen e ponto de forma especial.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O nome 'NomeCompleto' não está em snake_case (minúsculas, números e '_', começando por letra).",
+              "sheet": "survey",
+              "row": 3,
+              "suggestion": "Sugestão: nome_completo"
+            }
+          ]
+        },
+        {
+          "rule_id": "NOM-03",
+          "group": "Nomes de variáveis",
+          "severity": "erro",
+          "description": "Os nomes não têm acentos, cedilha nem caracteres especiais.",
+          "why_it_matters": "Acentos em nomes de colunas quebram importações com codificação diferente e geram nomes ilegíveis na exportação.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O nome 'pessoas_família' tem acento, cedilha ou outro caractere especial.",
+              "sheet": "survey",
+              "row": 10,
+              "suggestion": "Sugestão: pessoas_familia"
+            }
+          ]
+        },
+        {
+          "rule_id": "NOM-04",
+          "group": "Nomes de variáveis",
+          "severity": "aviso",
+          "description": "Os nomes respeitam o tamanho máximo.",
+          "why_it_matters": "Nomes longos são truncados em ferramentas como Stata e SPSS (limite de 32 caracteres) e dificultam a leitura da base.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O nome 'quantidade_pessoas_com_necessidades_especificas' tem 47 caracteres (máximo: 32).",
+              "sheet": "survey",
+              "row": 13,
+              "suggestion": "Abrevie o nome mantendo o sentido; o texto completo fica no label."
+            }
+          ]
+        },
+        {
+          "rule_id": "OPC-01",
+          "group": "Listas de opções",
+          "severity": "erro",
+          "description": "Toda lista usada em select_one, select_multiple ou rank existe na aba choices.",
+          "why_it_matters": "Uma lista inexistente impede a conversão do formulário ou deixa a pergunta sem opções.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A pergunta 'recebe_auxilio' usa a lista 'sim_nao', que não existe na aba 'choices'.",
+              "sheet": "survey",
+              "row": 12,
+              "suggestion": "Crie a lista na aba 'choices' ou corrija o nome dela na coluna type."
+            }
+          ]
+        },
+        {
+          "rule_id": "OPC-02",
+          "group": "Listas de opções",
+          "severity": "erro",
+          "description": "Não há opções com o mesmo código dentro de uma lista (respeita allow_choice_duplicates).",
+          "why_it_matters": "Duas opções com o mesmo código ficam impossíveis de distinguir na análise.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A opção 'abrigo_a' aparece duas vezes na lista 'abrigos' (primeira vez na linha 2).",
+              "sheet": "choices",
+              "row": 3,
+              "suggestion": "Dê um código diferente para cada opção da lista."
+            }
+          ]
+        },
+        {
+          "rule_id": "OPC-03",
+          "group": "Listas de opções",
+          "severity": "aviso",
+          "description": "Não há listas órfãs (definidas e nunca usadas).",
+          "why_it_matters": "Listas órfãs costumam indicar uma pergunta apagada ou com o nome da lista digitado errado.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A lista 'escolaridade' está definida, mas nenhuma pergunta a usa.",
+              "sheet": "choices",
+              "row": 11,
+              "suggestion": "Remova a lista ou confira se alguma pergunta deveria usá-la."
+            }
+          ]
+        },
+        {
+          "rule_id": "OPC-04",
+          "group": "Listas de opções",
+          "severity": "erro",
+          "description": "Os códigos (coluna name) das opções de listas usadas em select_multiple não têm espaço. O label pode ter várias palavras.",
+          "why_it_matters": "Em select_multiple as respostas marcadas são gravadas em um único campo, separadas por espaço (padrão XForms). Um código com espaço fica impossível de separar das outras respostas. O Formbuilder do Kobo resolve isso trocando espaços por \"_\" no código.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O código 'crime de odio' da lista 'tipos_violencia' tem espaço. Em select_multiple o espaço separa as respostas marcadas, então o código precisa ser uma palavra só. O label pode ter quantas palavras quiser.",
+              "sheet": "choices",
+              "row": 8,
+              "suggestion": "Sugestão de código: crime_de_odio"
+            }
+          ]
+        },
+        {
+          "rule_id": "OPC-05",
+          "group": "Listas de opções",
+          "severity": "aviso",
+          "description": "Em select_multiple, opções do tipo \"nenhum\", \"não sofri\" ou \"não sabe\" são exclusivas (constraint impede marcar outra junto).",
+          "why_it_matters": "Sem a restrição surgem respostas contraditórias, como \"nenhuma necessidade\" e \"alimentação\" ao mesmo tempo.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A pergunta 'violencias_sofridas' permite marcar 'nao_sofri' junto com outras opções.",
+              "sheet": "survey",
+              "row": 11,
+              "suggestion": "constraint: not(selected(., 'nao_sofri') and count-selected(.) > 1)"
+            }
+          ]
+        },
+        {
+          "rule_id": "LOG-01",
+          "group": "Lógica",
+          "severity": "erro",
+          "description": "Todo campo citado com ${...} em relevant, constraint, calculation e demais expressões existe no formulário.",
+          "why_it_matters": "Uma referência quebrada faz o formulário falhar na conversão ou esconder perguntas que deveriam aparecer.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A coluna 'relevant' cita ${renda_familar}, mas não existe pergunta com esse nome.",
+              "sheet": "survey",
+              "row": 12,
+              "suggestion": null
+            }
+          ]
+        },
+        {
+          "rule_id": "LOG-02",
+          "group": "Lógica",
+          "severity": "aviso",
+          "description": "Toda constraint tem constraint_message.",
+          "why_it_matters": "Sem mensagem, o enumerador vê um erro genérico em campo e não sabe o que corrigir.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A pergunta 'idade' tem constraint, mas não tem constraint_message.",
+              "sheet": "survey",
+              "row": 9,
+              "suggestion": "Explique em linguagem simples a regra '. >= 0', por exemplo: 'Informe um valor entre 0 e 20'."
+            },
+            {
+              "message": "A pergunta 'quantidade_pessoas_com_necessidades_especificas' tem constraint, mas não tem constraint_message.",
+              "sheet": "survey",
+              "row": 13,
+              "suggestion": "Explique em linguagem simples a regra '. >= 0 and . <= 20', por exemplo: 'Informe um valor entre 0 e 20'."
+            }
+          ]
+        },
+        {
+          "rule_id": "VAL-01",
+          "group": "Validações",
+          "severity": "erro",
+          "description": "Campos de idade têm constraint com limite inferior (>= 0) e superior plausível.",
+          "why_it_matters": "Idades como 250 ou -3 são erros de digitação comuns que só aparecem na limpeza dos dados.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O campo de idade 'idade' não tem limite inferior e superior na constraint ('. >= 0').",
+              "sheet": "survey",
+              "row": 9,
+              "suggestion": "constraint: . >= 0 and . <= 120"
+            }
+          ]
+        },
+        {
+          "rule_id": "VAL-02",
+          "group": "Validações",
+          "severity": "erro",
+          "description": "Campos de data têm constraint que impede datas futuras.",
+          "why_it_matters": "Datas de eventos passados (chegada, nascimento) no futuro são erros de digitação que distorcem tempos e idades.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A data 'data_chegada' aceita datas no futuro.",
+              "sheet": "survey",
+              "row": 7,
+              "suggestion": "constraint: . <= today()  (se a data puder ser futura, inclua o nome nas exceções da regra)"
+            }
+          ]
+        },
+        {
+          "rule_id": "VAL-03",
+          "group": "Validações",
+          "severity": "aviso",
+          "description": "Campos numéricos (integer, decimal) têm limites na constraint.",
+          "why_it_matters": "Sem limites, valores como 999 pessoas na família passam direto e distorcem médias e totais.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O campo numérico 'pessoas_família' não tem limite na constraint.",
+              "sheet": "survey",
+              "row": 10,
+              "suggestion": "Defina o intervalo plausível, por exemplo: . >= 1 and . <= 30"
+            }
+          ]
+        },
+        {
+          "rule_id": "MET-01",
+          "group": "Metadados de coleta",
+          "severity": "erro",
+          "description": "Os metadados start, end e today estão no formulário.",
+          "why_it_matters": "Eles permitem medir a duração das entrevistas e detectar formulários preenchidos rápido demais ou fora do período de coleta.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O metadado 'start' não está no formulário.",
+              "sheet": "survey",
+              "row": null,
+              "suggestion": "Adicione uma linha com type = start e name = start."
+            },
+            {
+              "message": "O metadado 'end' não está no formulário.",
+              "sheet": "survey",
+              "row": null,
+              "suggestion": "Adicione uma linha com type = end e name = end."
+            }
+          ]
+        },
+        {
+          "rule_id": "CON-01",
+          "group": "Consentimento",
+          "severity": "erro",
+          "description": "Existe uma pergunta de consentimento (select_one com nome que indique consentimento).",
+          "why_it_matters": "Coletar dados sem consentimento informado viola princípios de proteção e a LGPD.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "Não há pergunta de consentimento (select_one com nome que indique consentimento).",
+              "sheet": "survey",
+              "row": null,
+              "suggestion": "Adicione no início: type = select_one sim_nao, name = consentimento."
+            }
+          ]
+        },
+        {
+          "rule_id": "CON-02",
+          "group": "Consentimento",
+          "severity": "erro",
+          "description": "O consentimento está entre as primeiras perguntas (metadados, notas e cálculos não contam).",
+          "why_it_matters": "Nenhuma informação sobre a pessoa pode ser coletada antes de ela concordar em participar.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "CON-03",
+          "group": "Consentimento",
+          "severity": "erro",
+          "description": "Todas as perguntas após o consentimento dependem dele (relevant próprio ou do grupo), encerrando a entrevista se a resposta for \"não\".",
+          "why_it_matters": "Se a pessoa recusar e as perguntas continuarem aparecendo, o enumerador pode seguir com a entrevista sem consentimento.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "LGPD-01",
+          "group": "Proteção de dados (LGPD)",
+          "severity": "aviso",
+          "description": "Sinaliza campos que parecem conter dado pessoal direto (nome, documento, telefone, endereço, e-mail) e ainda não foram confirmados na coluna dado_pessoal.",
+          "why_it_matters": "A LGPD exige minimização: só coletar o dado pessoal indispensável. A detecção é por palavras-chave; use a coluna dado_pessoal (sim/nao) para confirmar ou descartar.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O campo 'NomeCompleto' parece coletar dado pessoal direto (nome contém 'nome').",
+              "sheet": "survey",
+              "row": 3,
+              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo."
+            },
+            {
+              "message": "O campo 'cpf' parece coletar dado pessoal direto (nome contém 'cpf').",
+              "sheet": "survey",
+              "row": 4,
+              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo."
+            },
+            {
+              "message": "O campo 'endereco_anterior' parece coletar dado pessoal direto (nome contém 'endereco').",
+              "sheet": "survey",
+              "row": 5,
+              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo."
+            }
+          ]
+        },
+        {
+          "rule_id": "LGPD-02",
+          "group": "Proteção de dados (LGPD)",
+          "severity": "erro",
+          "description": "Todo campo com dado pessoal tem justificativa documentada na coluna justificativa_dados_pessoais.",
+          "why_it_matters": "A justificativa registra finalidade e base legal (LGPD, arts. 6º e 7º) e obriga a equipe a decidir conscientemente se o dado é necessário.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O campo 'NomeCompleto' coleta dado pessoal sem justificativa documentada.",
+              "sheet": "survey",
+              "row": 3,
+              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento')."
+            },
+            {
+              "message": "O campo 'cpf' coleta dado pessoal sem justificativa documentada.",
+              "sheet": "survey",
+              "row": 4,
+              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento')."
+            },
+            {
+              "message": "O campo 'endereco_anterior' coleta dado pessoal sem justificativa documentada.",
+              "sheet": "survey",
+              "row": 5,
+              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento')."
+            }
+          ]
+        },
+        {
+          "rule_id": "LGPD-03",
+          "group": "Proteção de dados (LGPD)",
+          "severity": "aviso",
+          "description": "Perguntas de múltipla escolha sobre temas sensíveis oferecem a opção \"prefiro não responder\".",
+          "why_it_matters": "Violência, saúde, orientação sexual, raça e religião são dados pessoais sensíveis (LGPD, art. 11). Forçar a resposta gera dados falsos e pode expor a pessoa a risco.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A pergunta 'violencias_sofridas' trata de tema sensível e não oferece a opção de não responder.",
+              "sheet": "survey",
+              "row": 11,
+              "suggestion": "Inclua na lista 'tipos_violencia' a opção prefiro_nao_responder."
+            }
+          ]
+        },
+        {
+          "rule_id": "DES-01",
+          "group": "Desagregação",
+          "severity": "erro",
+          "description": "Existe pergunta de sexo com a lista padronizada.",
+          "why_it_matters": "Sem desagregação por sexo não é possível identificar necessidades e riscos diferentes entre mulheres e homens.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "A lista 'sexo' da pergunta 'sexo' não segue o padrão: faltam os códigos feminino, masculino.",
+              "sheet": "survey",
+              "row": 8,
+              "suggestion": "Use a lista padrão com os códigos: feminino, masculino."
+            }
+          ]
+        },
+        {
+          "rule_id": "DES-02",
+          "group": "Desagregação",
+          "severity": "erro",
+          "description": "Existe faixa etária, perguntada com lista padronizada ou calculada a partir da idade.",
+          "why_it_matters": "Faixas etárias padronizadas permitem comparar resultados entre coletas e somar dados de diferentes equipes.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "Não há faixa etária: nem pergunta com lista padronizada, nem calculate a partir da idade.",
+              "sheet": "survey",
+              "row": null,
+              "suggestion": "Adicione um calculate 'faixa_etaria' a partir do campo de idade, nas faixas 0_4, 5_11, 12_17, 18_59, 60_mais."
+            }
+          ]
+        },
+        {
+          "rule_id": "IDI-01",
+          "group": "Idiomas",
+          "severity": "erro",
+          "description": "Se houver colunas label::idioma, todos os labels estão preenchidos em todos os idiomas (survey e choices).",
+          "why_it_matters": "Uma tradução faltando aparece em branco ou no idioma errado para quem responde, e o enumerador improvisa a tradução.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "'NomeCompleto': coluna label sem tradução para Español (es).",
+              "sheet": "survey",
+              "row": 3,
+              "suggestion": "Preencha a coluna label::Español (es)."
+            },
+            {
+              "message": "'pessoas_família': coluna label sem tradução para Español (es).",
+              "sheet": "survey",
+              "row": 10,
+              "suggestion": "Preencha a coluna label::Español (es)."
+            },
+            {
+              "message": "'violencias_sofridas': coluna label sem tradução para Español (es).",
+              "sheet": "survey",
+              "row": 11,
+              "suggestion": "Preencha a coluna label::Español (es)."
+            },
+            {
+              "message": "'recebe_auxilio': coluna label sem tradução para Español (es).",
+              "sheet": "survey",
+              "row": 12,
+              "suggestion": "Preencha a coluna label::Español (es)."
+            },
+            {
+              "message": "'abrigo': coluna label sem tradução para Español (es).",
+              "sheet": "survey",
+              "row": 14,
+              "suggestion": "Preencha a coluna label::Español (es)."
+            },
+            {
+              "message": "'racismo_estrutural': coluna label sem tradução para Español (es).",
+              "sheet": "choices",
+              "row": 9,
+              "suggestion": "Preencha a coluna label::Español (es)."
+            }
+          ]
+        },
+        {
+          "rule_id": "IDI-02",
+          "group": "Idiomas",
+          "severity": "aviso",
+          "description": "Hints e mensagens de constraint também estão traduzidos em todos os idiomas.",
+          "why_it_matters": "Instruções e mensagens de erro sem tradução levam a respostas inconsistentes entre idiomas.",
+          "passed": true,
+          "findings": []
+        },
+        {
+          "rule_id": "IDI-03",
+          "group": "Idiomas",
+          "severity": "aviso",
+          "description": "Em formulários com mais de um idioma, default_language está definido na settings.",
+          "why_it_matters": "Sem idioma padrão, o aplicativo pode abrir o formulário em um idioma que o enumerador não domina.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "O formulário tem mais de um idioma, mas 'default_language' não está definido na aba 'settings'.",
+              "sheet": "settings",
+              "row": 2,
+              "suggestion": "Defina default_language, por exemplo: Português (pt)."
+            }
+          ]
+        },
+        {
+          "rule_id": "TEC-01",
+          "group": "Validação técnica (pyxform)",
+          "severity": "erro",
+          "description": "O formulário é convertido sem erros pelo pyxform, o conversor oficial usado pelo KoboToolbox e pelo ODK.",
+          "why_it_matters": "Se o pyxform não converte, o formulário não pode ser publicado.",
+          "passed": false,
+          "findings": [
+            {
+              "message": "pyxform: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names.",
+              "sheet": "choices",
+              "row": 3,
+              "suggestion": null
+            }
+          ]
+        },
+        {
+          "rule_id": "TEC-02",
+          "group": "Validação técnica (pyxform)",
+          "severity": "aviso",
+          "description": "Avisos emitidos pelo pyxform durante a conversão.",
+          "why_it_matters": "Os avisos apontam problemas que não impedem a publicação, mas costumam gerar comportamento inesperado em campo.",
+          "passed": true,
+          "findings": []
+        }
+      ]
+    }
+  ]
+}

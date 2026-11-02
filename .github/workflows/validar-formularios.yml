@@ -1,0 +1,90 @@
+name: Validar formulários XLSForm
+
+# Valida todo formulário novo ou alterado em forms/ e publica o resultado no PR.
+on:
+  pull_request:
+    paths:
+      - "forms/**.xlsx"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Java é necessário para o ODK Validate (regra TEC-03).
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Instalar o validador
+        run: pip install .
+
+      - name: Listar formulários novos ou alterados
+        id: arquivos
+        run: |
+          git diff --name-only --diff-filter=AMR \
+            "origin/${{ github.base_ref }}...HEAD" -- 'forms/*.xlsx' 'forms/**/*.xlsx' \
+            > arquivos.txt
+          echo "Arquivos a validar:"; cat arquivos.txt
+          echo "total=$(grep -c . arquivos.txt || true)" >> "$GITHUB_OUTPUT"
+
+      - name: Validar
+        id: validar
+        if: steps.arquivos.outputs.total != '0'
+        run: |
+          set +e
+          mapfile -t arquivos < arquivos.txt
+          xlsform-validator "${arquivos[@]}" --odk-validate --formato md json --saida relatorios
+          echo "codigo=$?" >> "$GITHUB_OUTPUT"
+          cat relatorios/relatorio.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar relatórios
+        if: steps.arquivos.outputs.total != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-xlsform
+          path: relatorios/
+
+      # Publica (ou atualiza) um único comentário no PR. Em PRs vindos de fork o
+      # token não tem permissão de escrita; nesse caso o resultado fica no resumo do job.
+      - name: Comentar no PR
+        if: steps.arquivos.outputs.total != '0'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- xlsform-validator -->';
+            let body = fs.readFileSync('relatorios/relatorio.md', 'utf8');
+            const limit = 60000;
+            if (body.length > limit) {
+              body = body.slice(0, limit) + '\n\n_Relatório truncado. Veja o arquivo completo nos artefatos do workflow._\n';
+            }
+            body = `${marker}\n${body}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const previous = comments.find(c => c.body && c.body.includes(marker));
+            if (previous) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+      - name: Falhar se houver erros
+        if: steps.validar.outputs.codigo != '' && steps.validar.outputs.codigo != '0'
+        run: |
+          echo "::error::Formulário(s) com erros de qualidade. Veja o comentário no PR ou o resumo do job."
+          exit ${{ steps.validar.outputs.codigo }}

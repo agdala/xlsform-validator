@@ -1,0 +1,32 @@
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: pip install ".[dev]"
+      - run: pytest -q
+      - name: Exemplos se comportam como esperado
+        run: |
+          xlsform-validator examples/abrigo_bom.xlsx --odk-validate > /dev/null
+          set +e; xlsform-validator examples/abrigo_ruim.xlsx > /dev/null; code=$?; set -e
+          test "$code" -eq 1

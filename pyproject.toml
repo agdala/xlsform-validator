@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xlsform-validator"
+version = "0.1.0"
+description = "Valida formulários XLSForm (KoboToolbox/ODK) contra um padrão de qualidade e governança de dados antes da coleta."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Agda Santos" }]
+requires-python = ">=3.10"
+dependencies = [
+  "openpyxl>=3.1",
+  "PyYAML>=6.0",
+  "pyxform>=4.0",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+xlsform-validator = "xlsform_validator.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+xlsform_validator = ["rules.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
