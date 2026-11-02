@@ -1,0 +1,360 @@
+# Padrão de qualidade e governança para formulários XLSForm.
+#
+# Cada regra tem:
+#   grupo           : agrupamento usado no relatório
+#   descricao       : o que a regra verifica
+#   severidade      : "erro" (bloqueia: código de saída 1) ou "aviso" (só informa)
+#   por_que_importa : a consequência prática de ignorar a regra
+#   ativa           : true/false para ligar ou desligar a regra
+#   parametros      : ajustes da regra (opcional)
+#
+# Para personalizar: gere uma cópia com `xlsform-validator --exportar-regras minhas_regras.yaml`,
+# edite e rode com `--regras minhas_regras.yaml`.
+
+versao: 1
+
+regras:
+
+  # ------------------------------------------------------------------ Estrutura
+  EST-01:
+    grupo: Estrutura
+    descricao: As abas survey e choices existem (choices só é exigida se houver perguntas de múltipla escolha).
+    severidade: erro
+    por_que_importa: Sem essas abas, com o nome exato em minúsculas, o KoboToolbox e o ODK não conseguem carregar o formulário.
+    ativa: true
+
+  EST-02:
+    grupo: Estrutura
+    descricao: A aba settings existe.
+    severidade: erro
+    por_que_importa: >-
+      É na settings que ficam o identificador e a versão do formulário. A especificação a trata como opcional,
+      mas sem ela o form_id passa a depender do nome do arquivo e as versões não ficam rastreáveis.
+    ativa: true
+
+  EST-03:
+    grupo: Estrutura
+    descricao: A aba survey tem as colunas type, name e label (ou label::idioma).
+    severidade: erro
+    por_que_importa: São as colunas obrigatórias da especificação XLSForm; sem elas o formulário não é convertido.
+    ativa: true
+    parametros:
+      colunas: [type, name, label]
+
+  EST-04:
+    grupo: Estrutura
+    descricao: A aba choices tem as colunas list_name (ou "list name"), name e label.
+    severidade: erro
+    por_que_importa: Sem essas colunas as listas de opções não são associadas às perguntas.
+    ativa: true
+    parametros:
+      colunas: [list_name, name, label]
+
+  EST-05:
+    grupo: Estrutura
+    descricao: A aba settings tem form_id e version preenchidos.
+    severidade: erro
+    por_que_importa: >-
+      O form_id identifica o formulário no servidor e a version distingue os dados coletados com cada revisão.
+      Sem eles, dados de versões diferentes se misturam e não é possível saber qual pergunta cada pessoa viu.
+    ativa: true
+    parametros:
+      campos: [form_id, version]
+
+  EST-06:
+    grupo: Estrutura
+    descricao: A version segue o padrão aaaammddrr (data + número da revisão).
+    severidade: aviso
+    por_que_importa: Um padrão único permite ordenar versões e saber quando cada uma foi publicada.
+    ativa: true
+    parametros:
+      padrao: '^\d{10}$'
+      exemplo: aaaammddrr
+
+  EST-07:
+    grupo: Estrutura
+    descricao: Toda pergunta tem label (metadados, calculate, hidden e grupos são exceção).
+    severidade: erro
+    por_que_importa: Uma pergunta sem texto aparece em branco para o enumerador, que vai improvisar a pergunta.
+    ativa: true
+    parametros:
+      tipos_sem_label: [calculate, hidden, xml-external, csv-external]
+
+  # ------------------------------------------------------------------ Nomes
+  NOM-01:
+    grupo: Nomes de variáveis
+    descricao: Os nomes das perguntas são únicos.
+    severidade: erro
+    por_que_importa: Dois campos com o mesmo nome viram a mesma coluna na base; um sobrescreve o outro ou o formulário não converte.
+    ativa: true
+
+  NOM-02:
+    grupo: Nomes de variáveis
+    descricao: Os nomes estão em snake_case (minúsculas, números e "_", começando por letra).
+    severidade: erro
+    por_que_importa: >-
+      Nomes padronizados evitam erros em scripts de análise (R, Python, Stata, Power BI), que diferenciam
+      maiúsculas e minúsculas e tratam hífen e ponto de forma especial.
+    ativa: true
+    parametros:
+      padrao: '^[a-z][a-z0-9_]*$'
+
+  NOM-03:
+    grupo: Nomes de variáveis
+    descricao: Os nomes não têm acentos, cedilha nem caracteres especiais.
+    severidade: erro
+    por_que_importa: Acentos em nomes de colunas quebram importações com codificação diferente e geram nomes ilegíveis na exportação.
+    ativa: true
+
+  NOM-04:
+    grupo: Nomes de variáveis
+    descricao: Os nomes respeitam o tamanho máximo.
+    severidade: aviso
+    por_que_importa: Nomes longos são truncados em ferramentas como Stata e SPSS (limite de 32 caracteres) e dificultam a leitura da base.
+    ativa: true
+    parametros:
+      tamanho_maximo: 32
+
+  # ------------------------------------------------------------------ Opções
+  OPC-01:
+    grupo: Listas de opções
+    descricao: Toda lista usada em select_one, select_multiple ou rank existe na aba choices.
+    severidade: erro
+    por_que_importa: Uma lista inexistente impede a conversão do formulário ou deixa a pergunta sem opções.
+    ativa: true
+
+  OPC-02:
+    grupo: Listas de opções
+    descricao: Não há opções com o mesmo código dentro de uma lista (respeita allow_choice_duplicates).
+    severidade: erro
+    por_que_importa: Duas opções com o mesmo código ficam impossíveis de distinguir na análise.
+    ativa: true
+
+  OPC-03:
+    grupo: Listas de opções
+    descricao: Não há listas órfãs (definidas e nunca usadas).
+    severidade: aviso
+    por_que_importa: Listas órfãs costumam indicar uma pergunta apagada ou com o nome da lista digitado errado.
+    ativa: true
+
+  OPC-04:
+    grupo: Listas de opções
+    descricao: Os códigos (coluna name) das opções de listas usadas em select_multiple não têm espaço. O label pode ter várias palavras.
+    severidade: erro
+    por_que_importa: >-
+      Em select_multiple as respostas marcadas são gravadas em um único campo, separadas por espaço
+      (padrão XForms). Um código com espaço fica impossível de separar das outras respostas.
+      O Formbuilder do Kobo resolve isso trocando espaços por "_" no código.
+    ativa: true
+
+  OPC-05:
+    grupo: Listas de opções
+    descricao: Em select_multiple, opções do tipo "nenhum", "não sofri" ou "não sabe" são exclusivas (constraint impede marcar outra junto).
+    severidade: aviso
+    por_que_importa: Sem a restrição surgem respostas contraditórias, como "nenhuma necessidade" e "alimentação" ao mesmo tempo.
+    ativa: true
+    parametros:
+      padroes_exclusivos:
+        - '^nenhum'
+        - '^nenhuma'
+        - '^nao_sofri'
+        - '^nao_sabe'
+        - '^nao_tem'
+        - '^nao_se_aplica'
+        - '^prefiro_nao_responder$'
+        - '^none$'
+        - '^dont_know$'
+
+  # ------------------------------------------------------------------ Lógica
+  LOG-01:
+    grupo: Lógica
+    descricao: Todo campo citado com ${...} em relevant, constraint, calculation e demais expressões existe no formulário.
+    severidade: erro
+    por_que_importa: Uma referência quebrada faz o formulário falhar na conversão ou esconder perguntas que deveriam aparecer.
+    ativa: true
+    parametros:
+      colunas: [relevant, constraint, calculation, choice_filter, required, repeat_count, default, label, hint, constraint_message, trigger]
+
+  LOG-02:
+    grupo: Lógica
+    descricao: Toda constraint tem constraint_message.
+    severidade: aviso
+    por_que_importa: Sem mensagem, o enumerador vê um erro genérico em campo e não sabe o que corrigir.
+    ativa: true
+
+  # ------------------------------------------------------------------ Validações
+  VAL-01:
+    grupo: Validações
+    descricao: Campos de idade têm constraint com limite inferior (>= 0) e superior plausível.
+    severidade: erro
+    por_que_importa: Idades como 250 ou -3 são erros de digitação comuns que só aparecem na limpeza dos dados.
+    ativa: true
+    parametros:
+      idade_maxima: 120
+      padroes_idade: ['(^|_)idade($|_)', '(^|_)age($|_)', '(^|_)edad($|_)']
+
+  VAL-02:
+    grupo: Validações
+    descricao: Campos de data têm constraint que impede datas futuras.
+    severidade: erro
+    por_que_importa: Datas de eventos passados (chegada, nascimento) no futuro são erros de digitação que distorcem tempos e idades.
+    ativa: true
+    parametros:
+      tipos: [date]
+      # Nomes de datas que podem ser futuras (agendamentos, previsões):
+      excecoes: ['previs', 'agend', 'retorno', 'proxim', 'futur']
+
+  VAL-03:
+    grupo: Validações
+    descricao: Campos numéricos (integer, decimal) têm limites na constraint.
+    severidade: aviso
+    por_que_importa: Sem limites, valores como 999 pessoas na família passam direto e distorcem médias e totais.
+    ativa: true
+    parametros:
+      # Campos de idade são cobertos pela VAL-01.
+      ignorar_padroes: ['(^|_)idade($|_)', '(^|_)age($|_)', '(^|_)edad($|_)']
+
+  # ------------------------------------------------------------------ Metadados
+  MET-01:
+    grupo: Metadados de coleta
+    descricao: Os metadados start, end e today estão no formulário.
+    severidade: erro
+    por_que_importa: Eles permitem medir a duração das entrevistas e detectar formulários preenchidos rápido demais ou fora do período de coleta.
+    ativa: true
+    parametros:
+      obrigatorios: [start, end, today]
+
+  # ------------------------------------------------------------------ Consentimento
+  CON-01:
+    grupo: Consentimento
+    descricao: Existe uma pergunta de consentimento (select_one com nome que indique consentimento).
+    severidade: erro
+    por_que_importa: Coletar dados sem consentimento informado viola princípios de proteção e a LGPD.
+    ativa: true
+    parametros:
+      padroes_nome: ['consent', 'consentimento']
+
+  CON-02:
+    grupo: Consentimento
+    descricao: O consentimento está entre as primeiras perguntas (metadados, notas e cálculos não contam).
+    severidade: erro
+    por_que_importa: Nenhuma informação sobre a pessoa pode ser coletada antes de ela concordar em participar.
+    ativa: true
+    parametros:
+      padroes_nome: ['consent', 'consentimento']
+      posicao_maxima: 3
+
+  CON-03:
+    grupo: Consentimento
+    descricao: Todas as perguntas após o consentimento dependem dele (relevant próprio ou do grupo), encerrando a entrevista se a resposta for "não".
+    severidade: erro
+    por_que_importa: Se a pessoa recusar e as perguntas continuarem aparecendo, o enumerador pode seguir com a entrevista sem consentimento.
+    ativa: true
+    parametros:
+      padroes_nome: ['consent', 'consentimento']
+      tipos_isentos: [calculate, hidden]
+
+  # ------------------------------------------------------------------ LGPD
+  LGPD-01:
+    grupo: Proteção de dados (LGPD)
+    descricao: Sinaliza campos que parecem conter dado pessoal direto (nome, documento, telefone, endereço, e-mail) e ainda não foram confirmados na coluna dado_pessoal.
+    severidade: aviso
+    por_que_importa: >-
+      A LGPD exige minimização: só coletar o dado pessoal indispensável. A detecção é por palavras-chave;
+      use a coluna dado_pessoal (sim/nao) para confirmar ou descartar.
+    ativa: true
+    parametros: &pii
+      coluna_marcacao: dado_pessoal
+      palavras_nome: [nome, sobrenome, cpf, rg, documento, passaporte, rne, crnm, telefone, celular, whatsapp, email, endereco, rua, logradouro, cep]
+      padroes_label: ['\bseu nome\b', '\bnome completo\b', '\bcpf\b', '\btelefone\b', '\bcelular\b', '\bwhatsapp\b', '\bendereco\b', '\be-?mail\b', '\bdocumento\b', '\bpassaporte\b']
+      tipos: [phonenumber, email]
+
+  LGPD-02:
+    grupo: Proteção de dados (LGPD)
+    descricao: Todo campo com dado pessoal tem justificativa documentada na coluna justificativa_dados_pessoais.
+    severidade: erro
+    por_que_importa: A justificativa registra finalidade e base legal (LGPD, arts. 6º e 7º) e obriga a equipe a decidir conscientemente se o dado é necessário.
+    ativa: true
+    parametros:
+      <<: *pii
+      coluna_justificativa: justificativa_dados_pessoais
+      tamanho_minimo: 15
+
+  LGPD-03:
+    grupo: Proteção de dados (LGPD)
+    descricao: Perguntas de múltipla escolha sobre temas sensíveis oferecem a opção "prefiro não responder".
+    severidade: aviso
+    por_que_importa: >-
+      Violência, saúde, orientação sexual, raça e religião são dados pessoais sensíveis (LGPD, art. 11).
+      Forçar a resposta gera dados falsos e pode expor a pessoa a risco.
+    ativa: true
+    parametros:
+      padroes_tema: ['violen', 'abuso', 'saude', 'doenca', 'orientacao_sexual', 'orientacao sexual', 'sexualidade', 'raca', 'etnia', 'religi', 'deficien', 'hiv']
+      padroes_recusa: ['prefiro_nao_responder', 'nao_quer_responder', 'nao_respondeu', 'recusa', 'prefer_not']
+
+  # ------------------------------------------------------------------ Desagregação
+  DES-01:
+    grupo: Desagregação
+    descricao: Existe pergunta de sexo com a lista padronizada.
+    severidade: erro
+    por_que_importa: Sem desagregação por sexo não é possível identificar necessidades e riscos diferentes entre mulheres e homens.
+    ativa: true
+    parametros:
+      padroes_nome: ['(^|_)sexo($|_)', '(^|_)sex($|_)']
+      codigos_obrigatorios: [feminino, masculino]
+
+  DES-02:
+    grupo: Desagregação
+    descricao: Existe faixa etária, perguntada com lista padronizada ou calculada a partir da idade.
+    severidade: erro
+    por_que_importa: Faixas etárias padronizadas permitem comparar resultados entre coletas e somar dados de diferentes equipes.
+    ativa: true
+    parametros:
+      padroes_nome: ['faixa_etaria', 'age_group']
+      codigos_obrigatorios: ['0_4', '5_11', '12_17', '18_59', '60_mais']
+
+  # ------------------------------------------------------------------ Idiomas
+  IDI-01:
+    grupo: Idiomas
+    descricao: Se houver colunas label::idioma, todos os labels estão preenchidos em todos os idiomas (survey e choices).
+    severidade: erro
+    por_que_importa: Uma tradução faltando aparece em branco ou no idioma errado para quem responde, e o enumerador improvisa a tradução.
+    ativa: true
+
+  IDI-02:
+    grupo: Idiomas
+    descricao: Hints e mensagens de constraint também estão traduzidos em todos os idiomas.
+    severidade: aviso
+    por_que_importa: Instruções e mensagens de erro sem tradução levam a respostas inconsistentes entre idiomas.
+    ativa: true
+    parametros:
+      colunas: [hint, constraint_message, required_message]
+
+  IDI-03:
+    grupo: Idiomas
+    descricao: Em formulários com mais de um idioma, default_language está definido na settings.
+    severidade: aviso
+    por_que_importa: Sem idioma padrão, o aplicativo pode abrir o formulário em um idioma que o enumerador não domina.
+    ativa: true
+
+  # ------------------------------------------------------------------ Técnica
+  TEC-01:
+    grupo: Validação técnica (pyxform)
+    descricao: O formulário é convertido sem erros pelo pyxform, o conversor oficial usado pelo KoboToolbox e pelo ODK.
+    severidade: erro
+    por_que_importa: Se o pyxform não converte, o formulário não pode ser publicado.
+    ativa: true
+
+  TEC-02:
+    grupo: Validação técnica (pyxform)
+    descricao: Avisos emitidos pelo pyxform durante a conversão.
+    severidade: aviso
+    por_que_importa: Os avisos apontam problemas que não impedem a publicação, mas costumam gerar comportamento inesperado em campo.
+    ativa: true
+
+  TEC-03:
+    grupo: Validação técnica (pyxform)
+    descricao: O XForm gerado passa no ODK Validate (requer Java; ative com --odk-validate).
+    severidade: erro
+    por_que_importa: O ODK Validate testa as expressões como o aplicativo de coleta vai executá-las, pegando erros que a conversão não vê.
+    ativa: false
