@@ -30,6 +30,7 @@ def references_exist(form: Form, params: dict) -> list[Finding]:
                     f"A coluna '{column}' cita ${{{ref}}}, mas não existe pergunta com esse nome.",
                     sheet=sheet,
                     row=row,
+                    column=column,
                     suggestion=f"Você quis dizer ${{{close[0]}}}?" if close else None,
                 )
             )

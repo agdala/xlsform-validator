@@ -1,7 +1,7 @@
 {
   "tool": "xlsform-validator",
   "version": "0.1.0",
-  "generated_at": "2026-11-02T13:58:29+00:00",
+  "generated_at": "2026-11-02T14:53:33+00:00",
   "files": [
     {
       "file": "examples/abrigo_ruim.xlsx",
@@ -62,7 +62,8 @@
               "message": "O campo 'version' não está preenchido na aba 'settings'.",
               "sheet": "settings",
               "row": 2,
-              "suggestion": "Crie a coluna version com a data e a revisão, ex.: 2026110201."
+              "suggestion": "Crie a coluna version com a data e a revisão, ex.: 2026110201.",
+              "column": null
             }
           ]
         },
@@ -87,7 +88,8 @@
               "message": "A pergunta 'observacoes' (tipo text) não tem label.",
               "sheet": "survey",
               "row": 15,
-              "suggestion": "Escreva o texto da pergunta exatamente como deve ser lido."
+              "suggestion": "Escreva o texto da pergunta exatamente como deve ser lido.",
+              "column": null
             }
           ]
         },
@@ -103,7 +105,8 @@
               "message": "O nome 'abrigo' já foi usado na linha 6.",
               "sheet": "survey",
               "row": 14,
-              "suggestion": "Dê um nome diferente para cada pergunta."
+              "suggestion": "Dê um nome diferente para cada pergunta.",
+              "column": null
             }
           ]
         },
@@ -119,7 +122,8 @@
               "message": "O nome 'NomeCompleto' não está em snake_case (minúsculas, números e '_', começando por letra).",
               "sheet": "survey",
               "row": 3,
-              "suggestion": "Sugestão: nome_completo"
+              "suggestion": "Sugestão: nome_completo",
+              "column": null
             }
           ]
         },
@@ -135,7 +139,8 @@
               "message": "O nome 'pessoas_família' tem acento, cedilha ou outro caractere especial.",
               "sheet": "survey",
               "row": 10,
-              "suggestion": "Sugestão: pessoas_familia"
+              "suggestion": "Sugestão: pessoas_familia",
+              "column": null
             }
           ]
         },
@@ -151,7 +156,8 @@
               "message": "O nome 'quantidade_pessoas_com_necessidades_especificas' tem 47 caracteres (máximo: 32).",
               "sheet": "survey",
               "row": 13,
-              "suggestion": "Abrevie o nome mantendo o sentido; o texto completo fica no label."
+              "suggestion": "Abrevie o nome mantendo o sentido; o texto completo fica no label.",
+              "column": null
             }
           ]
         },
@@ -167,7 +173,8 @@
               "message": "A pergunta 'recebe_auxilio' usa a lista 'sim_nao', que não existe na aba 'choices'.",
               "sheet": "survey",
               "row": 12,
-              "suggestion": "Crie a lista na aba 'choices' ou corrija o nome dela na coluna type."
+              "suggestion": "Crie a lista na aba 'choices' ou corrija o nome dela na coluna type.",
+              "column": null
             }
           ]
         },
@@ -183,7 +190,8 @@
               "message": "A opção 'abrigo_a' aparece duas vezes na lista 'abrigos' (primeira vez na linha 2).",
               "sheet": "choices",
               "row": 3,
-              "suggestion": "Dê um código diferente para cada opção da lista."
+              "suggestion": "Dê um código diferente para cada opção da lista.",
+              "column": null
             }
           ]
         },
@@ -199,7 +207,8 @@
               "message": "A lista 'escolaridade' está definida, mas nenhuma pergunta a usa.",
               "sheet": "choices",
               "row": 11,
-              "suggestion": "Remova a lista ou confira se alguma pergunta deveria usá-la."
+              "suggestion": "Remova a lista ou confira se alguma pergunta deveria usá-la.",
+              "column": null
             }
           ]
         },
@@ -215,7 +224,8 @@
               "message": "O código 'crime de odio' da lista 'tipos_violencia' tem espaço. Em select_multiple o espaço separa as respostas marcadas, então o código precisa ser uma palavra só. O label pode ter quantas palavras quiser.",
               "sheet": "choices",
               "row": 8,
-              "suggestion": "Sugestão de código: crime_de_odio"
+              "suggestion": "Sugestão de código: crime_de_odio",
+              "column": null
             }
           ]
         },
@@ -231,7 +241,8 @@
               "message": "A pergunta 'violencias_sofridas' permite marcar 'nao_sofri' junto com outras opções.",
               "sheet": "survey",
               "row": 11,
-              "suggestion": "constraint: not(selected(., 'nao_sofri') and count-selected(.) > 1)"
+              "suggestion": "constraint: not(selected(., 'nao_sofri') and count-selected(.) > 1)",
+              "column": null
             }
           ]
         },
@@ -247,7 +258,8 @@
               "message": "A coluna 'relevant' cita ${renda_familar}, mas não existe pergunta com esse nome.",
               "sheet": "survey",
               "row": 12,
-              "suggestion": null
+              "suggestion": null,
+              "column": "relevant"
             }
           ]
         },
@@ -263,13 +275,15 @@
               "message": "A pergunta 'idade' tem constraint, mas não tem constraint_message.",
               "sheet": "survey",
               "row": 9,
-              "suggestion": "Explique em linguagem simples a regra '. >= 0', por exemplo: 'Informe um valor entre 0 e 20'."
+              "suggestion": "Explique em linguagem simples a regra '. >= 0', por exemplo: 'Informe um valor entre 0 e 20'.",
+              "column": null
             },
             {
               "message": "A pergunta 'quantidade_pessoas_com_necessidades_especificas' tem constraint, mas não tem constraint_message.",
               "sheet": "survey",
               "row": 13,
-              "suggestion": "Explique em linguagem simples a regra '. >= 0 and . <= 20', por exemplo: 'Informe um valor entre 0 e 20'."
+              "suggestion": "Explique em linguagem simples a regra '. >= 0 and . <= 20', por exemplo: 'Informe um valor entre 0 e 20'.",
+              "column": null
             }
           ]
         },
@@ -285,7 +299,8 @@
               "message": "O campo de idade 'idade' não tem limite inferior e superior na constraint ('. >= 0').",
               "sheet": "survey",
               "row": 9,
-              "suggestion": "constraint: . >= 0 and . <= 120"
+              "suggestion": "constraint: . >= 0 and . <= 120",
+              "column": null
             }
           ]
         },
@@ -301,7 +316,8 @@
               "message": "A data 'data_chegada' aceita datas no futuro.",
               "sheet": "survey",
               "row": 7,
-              "suggestion": "constraint: . <= today()  (se a data puder ser futura, inclua o nome nas exceções da regra)"
+              "suggestion": "constraint: . <= today()  (se a data puder ser futura, inclua o nome nas exceções da regra)",
+              "column": null
             }
           ]
         },
@@ -317,7 +333,8 @@
               "message": "O campo numérico 'pessoas_família' não tem limite na constraint.",
               "sheet": "survey",
               "row": 10,
-              "suggestion": "Defina o intervalo plausível, por exemplo: . >= 1 and . <= 30"
+              "suggestion": "Defina o intervalo plausível, por exemplo: . >= 1 and . <= 30",
+              "column": null
             }
           ]
         },
@@ -333,13 +350,15 @@
               "message": "O metadado 'start' não está no formulário.",
               "sheet": "survey",
               "row": null,
-              "suggestion": "Adicione uma linha com type = start e name = start."
+              "suggestion": "Adicione uma linha com type = start e name = start.",
+              "column": null
             },
             {
               "message": "O metadado 'end' não está no formulário.",
               "sheet": "survey",
               "row": null,
-              "suggestion": "Adicione uma linha com type = end e name = end."
+              "suggestion": "Adicione uma linha com type = end e name = end.",
+              "column": null
             }
           ]
         },
@@ -355,7 +374,8 @@
               "message": "Não há pergunta de consentimento (select_one com nome que indique consentimento).",
               "sheet": "survey",
               "row": null,
-              "suggestion": "Adicione no início: type = select_one sim_nao, name = consentimento."
+              "suggestion": "Adicione no início: type = select_one sim_nao, name = consentimento.",
+              "column": null
             }
           ]
         },
@@ -389,19 +409,22 @@
               "message": "O campo 'NomeCompleto' parece coletar dado pessoal direto (nome contém 'nome').",
               "sheet": "survey",
               "row": 3,
-              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo."
+              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo.",
+              "column": null
             },
             {
               "message": "O campo 'cpf' parece coletar dado pessoal direto (nome contém 'cpf').",
               "sheet": "survey",
               "row": 4,
-              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo."
+              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo.",
+              "column": null
             },
             {
               "message": "O campo 'endereco_anterior' parece coletar dado pessoal direto (nome contém 'endereco').",
               "sheet": "survey",
               "row": 5,
-              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo."
+              "suggestion": "Confirme na coluna 'dado_pessoal': 'sim' se for dado pessoal indispensável, 'nao' se for falso positivo.",
+              "column": null
             }
           ]
         },
@@ -417,19 +440,22 @@
               "message": "O campo 'NomeCompleto' coleta dado pessoal sem justificativa documentada.",
               "sheet": "survey",
               "row": 3,
-              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento')."
+              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento').",
+              "column": null
             },
             {
               "message": "O campo 'cpf' coleta dado pessoal sem justificativa documentada.",
               "sheet": "survey",
               "row": 4,
-              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento')."
+              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento').",
+              "column": null
             },
             {
               "message": "O campo 'endereco_anterior' coleta dado pessoal sem justificativa documentada.",
               "sheet": "survey",
               "row": 5,
-              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento')."
+              "suggestion": "Preencha a coluna 'justificativa_dados_pessoais' com a finalidade e a base legal (ex.: 'Contato para encaminhamento; consentimento').",
+              "column": null
             }
           ]
         },
@@ -445,7 +471,8 @@
               "message": "A pergunta 'violencias_sofridas' trata de tema sensível e não oferece a opção de não responder.",
               "sheet": "survey",
               "row": 11,
-              "suggestion": "Inclua na lista 'tipos_violencia' a opção prefiro_nao_responder."
+              "suggestion": "Inclua na lista 'tipos_violencia' a opção prefiro_nao_responder.",
+              "column": null
             }
           ]
         },
@@ -461,7 +488,8 @@
               "message": "A lista 'sexo' da pergunta 'sexo' não segue o padrão: faltam os códigos feminino, masculino.",
               "sheet": "survey",
               "row": 8,
-              "suggestion": "Use a lista padrão com os códigos: feminino, masculino."
+              "suggestion": "Use a lista padrão com os códigos: feminino, masculino.",
+              "column": null
             }
           ]
         },
@@ -477,7 +505,8 @@
               "message": "Não há faixa etária: nem pergunta com lista padronizada, nem calculate a partir da idade.",
               "sheet": "survey",
               "row": null,
-              "suggestion": "Adicione um calculate 'faixa_etaria' a partir do campo de idade, nas faixas 0_4, 5_11, 12_17, 18_59, 60_mais."
+              "suggestion": "Adicione um calculate 'faixa_etaria' a partir do campo de idade, nas faixas 0_4, 5_11, 12_17, 18_59, 60_mais.",
+              "column": null
             }
           ]
         },
@@ -493,37 +522,43 @@
               "message": "'NomeCompleto': coluna label sem tradução para Español (es).",
               "sheet": "survey",
               "row": 3,
-              "suggestion": "Preencha a coluna label::Español (es)."
+              "suggestion": "Preencha a(s) coluna(s): label::Español (es).",
+              "column": "label::Español (es)"
             },
             {
               "message": "'pessoas_família': coluna label sem tradução para Español (es).",
               "sheet": "survey",
               "row": 10,
-              "suggestion": "Preencha a coluna label::Español (es)."
+              "suggestion": "Preencha a(s) coluna(s): label::Español (es).",
+              "column": "label::Español (es)"
             },
             {
               "message": "'violencias_sofridas': coluna label sem tradução para Español (es).",
               "sheet": "survey",
               "row": 11,
-              "suggestion": "Preencha a coluna label::Español (es)."
+              "suggestion": "Preencha a(s) coluna(s): label::Español (es).",
+              "column": "label::Español (es)"
             },
             {
               "message": "'recebe_auxilio': coluna label sem tradução para Español (es).",
               "sheet": "survey",
               "row": 12,
-              "suggestion": "Preencha a coluna label::Español (es)."
+              "suggestion": "Preencha a(s) coluna(s): label::Español (es).",
+              "column": "label::Español (es)"
             },
             {
               "message": "'abrigo': coluna label sem tradução para Español (es).",
               "sheet": "survey",
               "row": 14,
-              "suggestion": "Preencha a coluna label::Español (es)."
+              "suggestion": "Preencha a(s) coluna(s): label::Español (es).",
+              "column": "label::Español (es)"
             },
             {
               "message": "'racismo_estrutural': coluna label sem tradução para Español (es).",
               "sheet": "choices",
               "row": 9,
-              "suggestion": "Preencha a coluna label::Español (es)."
+              "suggestion": "Preencha a(s) coluna(s): label::Español (es).",
+              "column": "label::Español (es)"
             }
           ]
         },
@@ -548,7 +583,8 @@
               "message": "O formulário tem mais de um idioma, mas 'default_language' não está definido na aba 'settings'.",
               "sheet": "settings",
               "row": 2,
-              "suggestion": "Defina default_language, por exemplo: Português (pt)."
+              "suggestion": "Defina default_language, por exemplo: Português (pt).",
+              "column": null
             }
           ]
         },
@@ -561,10 +597,11 @@
           "passed": false,
           "findings": [
             {
-              "message": "pyxform: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names.",
+              "message": "pyxform: Há duas opções com o mesmo código (coluna name) na mesma lista da aba 'choices'.",
               "sheet": "choices",
               "row": 3,
-              "suggestion": null
+              "suggestion": "Mensagem original: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names.",
+              "column": null
             }
           ]
         },

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from ..engine import Finding, rule
 from ..form import Form, form_to_xlsx
+from ..pyxform_messages import translate
 
 ROW_PATTERN = re.compile(r"\[row\s*:\s*(\d+)\]", re.IGNORECASE)
 SHEET_PATTERN = re.compile(r"\b(survey|choices|settings)\b", re.IGNORECASE)
@@ -40,6 +41,14 @@ def _finding(text: str, form: Form) -> Finding:
             if hit:
                 sheet, row = "survey", hit.number
                 break
+    translated = translate(text)
+    if translated:
+        return Finding(
+            message=f"pyxform: {translated}",
+            sheet=sheet,
+            row=row,
+            suggestion=f"Mensagem original: {text}",
+        )
     return Finding(message=f"pyxform: {text}", sheet=sheet, row=row)
 
 

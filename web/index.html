@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Validador XLSForm</title>
+  <meta name="description" content="Confira formulários do KoboToolbox e do ODK contra um padrão de qualidade e proteção de dados antes de ir a campo. O arquivo não sai do seu computador.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f99'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="container">
+      <div class="marca">
+        <span class="marca-icone" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="32" height="32"><rect width="32" height="32" rx="7"/><path d="M9 16.5l4.5 4.5L23 11"/></svg>
+        </span>
+        <div>
+          <h1>Validador de formulários XLSForm</h1>
+          <p class="subtitulo">Confira seu formulário do KoboToolbox ou ODK antes de ir a campo.</p>
+        </div>
+      </div>
+      <p class="selo-privacidade">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path d="M7 10V7a5 5 0 0 1 10 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/></svg>
+        Seu arquivo não sai do seu computador
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="cartao" aria-labelledby="titulo-envio">
+      <h2 id="titulo-envio">Envie o formulário</h2>
+
+      <label class="zona-envio" id="zona-envio" for="arquivo">
+        <input type="file" id="arquivo" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="40" height="40"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        <span class="zona-titulo">Arraste o arquivo <strong>.xlsx</strong> aqui ou <u>clique para escolher</u></span>
+        <span class="zona-dica">No KoboToolbox: abra o projeto, clique em <strong>⋯</strong> e depois em <strong>Download XLS</strong>.</span>
+      </label>
+
+      <div class="exemplos">
+        <span>Sem arquivo à mão? Teste com um exemplo fictício:</span>
+        <button type="button" class="botao-link" data-exemplo="exemplos/abrigo_ruim.xlsx">formulário com problemas</button>
+        <button type="button" class="botao-link" data-exemplo="exemplos/abrigo_bom.xlsx">formulário aprovado</button>
+      </div>
+
+      <p class="status-motor" id="status-motor" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="status-texto">Preparando o validador. Na primeira visita isso pode levar alguns segundos.</span>
+      </p>
+    </section>
+
+    <section id="resultado" class="resultado" hidden aria-live="polite"></section>
+
+    <section class="cartao" aria-labelledby="titulo-como">
+      <h2 id="titulo-como">Como funciona</h2>
+      <ol class="passos">
+        <li><strong>Envie</strong> a planilha do formulário (.xlsx). Ela é lida aqui mesmo, no seu navegador.</li>
+        <li><strong>Veja o resultado</strong>: o que é erro (precisa corrigir) e o que é aviso (recomendação), com a linha da planilha.</li>
+        <li><strong>Baixe a planilha anotada</strong>: as linhas com problema ficam coloridas e cada célula traz um comentário explicando o que fazer.</li>
+        <li><strong>Corrija no Excel</strong> e valide de novo até ficar aprovado.</li>
+      </ol>
+    </section>
+
+    <section class="cartao" aria-labelledby="titulo-regras">
+      <h2 id="titulo-regras">O que é verificado</h2>
+      <p class="texto-apoio">Um padrão de qualidade e governança com regras de estrutura, nomes, listas de opções, lógica, validações, metadados, consentimento, proteção de dados (LGPD), desagregação e idiomas, além do conversor oficial usado pelo KoboToolbox e pelo ODK.</p>
+      <div id="lista-regras" class="lista-regras"></div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container">
+      <p><strong>Limitações desta versão web:</strong> usa o padrão de regras embutido e não roda o ODK Validate (que exige Java). As detecções de dado pessoal, consentimento e desagregação são feitas por palavras-chave e não substituem revisão humana.</p>
+      <p>Código aberto (licença MIT): <a href="https://github.com/agdala/xlsform-validator">github.com/agdala/xlsform-validator</a>. Os formulários de exemplo são fictícios.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

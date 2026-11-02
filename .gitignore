@@ -6,3 +6,5 @@ dist/
 .venv/
 relatorios/
 ~$*.xlsx
+site/
+.cache/
