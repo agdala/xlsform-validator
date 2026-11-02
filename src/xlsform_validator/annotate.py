@@ -170,3 +170,45 @@ def _summary_sheet(wb, report: FileReport, locations: dict[int, str]) -> None:
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
+
+
+# Cores aplicadas pela anotação: usadas para reconhecer e remover só o que foi
+# marcado pelo validador, sem mexer na formatação feita pela equipe.
+_OUR_COLORS = {fill.fgColor.rgb[-6:] for pair in FILL.values() for fill in pair}
+
+
+def is_annotated(source: str | Path | bytes) -> bool:
+    """Indica se o arquivo traz marcas de uma anotação anterior do validador."""
+    stream = io.BytesIO(source) if isinstance(source, bytes) else source
+    wb = load_workbook(stream, read_only=True)
+    try:
+        return SUMMARY_SHEET in wb.sheetnames
+    finally:
+        wb.close()
+
+
+def ready_to_publish(source: str | Path | bytes) -> bytes:
+    """Devolve o formulário pronto para publicar no KoboToolbox, ODK e similares.
+
+    Se o arquivo nunca foi anotado, devolve os bytes originais sem nenhuma
+    alteração (nada se perde). Se veio de uma planilha anotada antes, remove a aba
+    de resumo, os comentários e as cores aplicadas pelo validador.
+    """
+    data = source if isinstance(source, bytes) else Path(source).read_bytes()
+    if not is_annotated(data):
+        return data
+
+    wb = load_workbook(io.BytesIO(data))
+    del wb[SUMMARY_SHEET]
+    wb.active = 0
+    for ws in wb.worksheets:
+        for row in ws.iter_rows():
+            for cell in row:
+                if cell.comment is not None and cell.comment.author == AUTHOR:
+                    cell.comment = None
+                rgb = cell.fill.fgColor.rgb if cell.fill and cell.fill.fill_type == "solid" else None
+                if isinstance(rgb, str) and rgb[-6:].upper() in _OUR_COLORS:
+                    cell.fill = PatternFill(fill_type=None)
+    out = io.BytesIO()
+    wb.save(out)
+    return out.getvalue()

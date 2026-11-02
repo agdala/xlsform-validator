@@ -4,7 +4,7 @@
 [![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
 
 > **In English.** `xlsform-validator` is a Python CLI and GitHub Action that checks XLSForm
-> questionnaires (the format used by KoboToolbox and ODK) against a configurable data quality and
+> questionnaires (the standard used by KoboToolbox, ODK, SurveyCTO, Ona and ArcGIS Survey123) against a configurable data quality and
 > data governance standard *before* they go to the field. It runs 36 rules (structure, variable
 > naming, choice lists, skip logic, value constraints, collection metadata, informed consent,
 > personal data protection, sex and age disaggregation, translations) plus the official `pyxform`
@@ -13,15 +13,20 @@
 > Rules live in a YAML file with severity and rationale, so teams can adapt the standard without
 > touching code. A **web version** runs the same Python validator entirely in the browser
 > (Pyodide, no server: the file never leaves the user's computer) and returns the user's own
-> spreadsheet with the problems highlighted and commented cell by cell. All examples are fictitious.
+> spreadsheet with the problems highlighted and commented cell by cell, or, once the form passes,
+> a file ready to publish. All examples are fictitious.
 
-Valida formulários XLSForm (KoboToolbox / ODK) contra um padrão de qualidade e governança de dados
-**antes** de irem a campo, e gera um relatório claro do que corrigir, com aba, linha e sugestão.
+Valida formulários XLSForm contra um padrão de qualidade e governança de dados **antes** de irem a
+campo, e gera um relatório claro do que corrigir, com aba, linha e sugestão.
+
+**Compatível com as plataformas que usam o padrão XLSForm:** KoboToolbox, ODK, SurveyCTO, Ona e
+ArcGIS Survey123 (veja a seção de limitações sobre recursos exclusivos de cada plataforma).
 
 ### ▶ Use agora, sem instalar nada: **[agdala.github.io/xlsform-validator](https://agdala.github.io/xlsform-validator/)**
 
-Arraste a planilha do formulário, veja o resultado e baixe a **sua planilha anotada**, com cada
-problema marcado na célula onde está. O arquivo é processado no seu navegador e **não é enviado a
+Arraste a planilha do formulário e veja o resultado. Se houver erros, baixe a **sua planilha
+anotada**, com cada problema marcado na célula onde está. Quando o formulário for aprovado, baixe o
+**formulário pronto para publicar**. O arquivo é processado no seu navegador e **não é enviado a
 nenhum servidor**.
 
 ---
@@ -522,7 +527,21 @@ xlsform-validator examples/abrigo_ruim.xlsx
 2. No KoboToolbox, abra o projeto, clique em **⋯** e depois em **Download XLS** (ou use a planilha que você já tem).
 3. Arraste o arquivo `.xlsx` para a página.
 4. Leia o resultado: **erros** precisam ser corrigidos, **avisos** são recomendações.
-5. Clique em **Baixar planilha anotada**, corrija no Excel e valide de novo.
+5. **Se houver erros:** clique em **Baixar planilha anotada**, corrija no Excel e valide de novo.
+6. **Se for aprovado** (com ou sem avisos): clique em **Baixar formulário pronto para publicar** e
+   suba o arquivo na sua plataforma.
+
+O que cada resultado oferece para baixar:
+
+| Resultado | Botão principal | Opções secundárias |
+|---|---|---|
+| ❌ Reprovado (há erros) | Planilha anotada | Relatório (.md), dados (.json) |
+| ⚠️ Aprovado com avisos | Formulário pronto para publicar | Planilha anotada com os avisos, relatório, dados |
+| ✅ Aprovado | Formulário pronto para publicar | Planilha anotada, relatório, dados |
+
+O **formulário pronto para publicar** é o seu arquivo original, byte a byte, sem nenhuma alteração.
+Se você enviar uma planilha que já tinha sido anotada antes, o validador remove a aba `validacao`,
+os comentários e as cores que ele mesmo aplicou, sem mexer na formatação feita pela equipe.
 
 Na planilha anotada:
 
@@ -539,7 +558,9 @@ Exemplo: [`examples/abrigo_ruim_anotado.xlsx`](examples/abrigo_ruim_anotado.xlsx
 para WebAssembly) e roda o mesmo pacote Python da linha de comando. Todos os arquivos são servidos
 pelo próprio GitHub Pages, sem CDN externo. O teste automatizado da página verifica que **nenhuma
 requisição sai do site** durante a validação. Na primeira visita o navegador baixa cerca de
-18 MB (uma única vez; depois fica em cache) e o validador leva de 5 a 20 segundos para ficar pronto.
+18 MB (uma única vez; depois fica em cache) e o validador pode levar até 30 segundos para ficar
+pronto. A página mostra o progresso por etapas (ambiente Python, conversor oficial do XLSForm,
+regras) e só libera o envio de arquivos quando tudo está carregado.
 
 **Para publicar a sua própria cópia:** em **Settings → Pages → Build and deployment → Source**,
 escolha **GitHub Actions**. O workflow
@@ -696,8 +717,8 @@ src/xlsform_validator/
   web.py         ponto de entrada da versão web
   cli.py         linha de comando
 web/             página (HTML, CSS, JavaScript) e worker que roda o Python no navegador
-tests/           83 testes pytest (cada regra tem casos que passam e que falham)
-tests/web/       teste ponta a ponta da página (Playwright)
+tests/           89 testes pytest (cada regra tem casos que passam e que falham)
+tests/web/       teste ponta a ponta da página (Playwright) e formulário de exemplo só com avisos
 scripts/         gerador dos exemplos e montagem do site (build_web.py)
 examples/        formulários fictícios e relatórios gerados
 forms/           pasta monitorada pela GitHub Action
@@ -723,11 +744,17 @@ pytest
 - **Problemas de conteúdo ficam fora.** Opções que juntam dois conceitos ("xenofobia e
   homofobia"), perguntas duplas ou enviesadas e tradução incorreta (só a ausência é detectada)
   exigem revisão humana. Detectar o "e" no texto geraria falso positivo em "Água e saneamento".
+- **Compatibilidade entre plataformas.** As regras e o conversor oficial (pyxform) seguem o padrão
+  XLSForm comum ao KoboToolbox, ODK, SurveyCTO, Ona e ArcGIS Survey123. Recursos exclusivos de
+  uma plataforma (por exemplo, funções próprias do SurveyCTO ou colunas específicas do Survey123)
+  podem gerar avisos ou erros do conversor oficial, ou simplesmente não ser verificados. Teste
+  sempre o formulário final na plataforma de destino.
 - **A versão web não roda o ODK Validate** (exige Java) e usa o padrão de regras embutido. Para
   regras personalizadas ou ODK Validate, use a linha de comando ou a GitHub Action.
 - **A planilha anotada é regravada pelo openpyxl.** Formatação comum é preservada, mas recursos
   avançados do Excel (macros, imagens, validação de dados com listas externas) podem se perder.
-  Por isso ela serve para orientar a correção; publique a partir do seu arquivo original corrigido.
+  Por isso ela serve para orientar a correção; para publicar, use o **formulário pronto**, que é o
+  arquivo original sem alterações.
 - **Só `.xlsx`.** O formato `.xls` antigo e formulários em Google Sheets precisam ser exportados
   para `.xlsx` antes.
 - **Listas externas** (`select_one_from_file`, CSV anexos) não são verificadas.

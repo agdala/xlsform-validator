@@ -103,3 +103,76 @@ def test_rules_json_matches_yaml(tmp_path):
     path = tmp_path / "rules.json"
     path.write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
     assert [c.id for c in load_config(path)] == [c.id for c in load_config(RULES)]
+
+
+# ------------------------------------------------------------------ formulário pronto
+
+from xlsform_validator.annotate import is_annotated, ready_to_publish  # noqa: E402
+
+AVISOS = ROOT / "tests" / "web" / "abrigo_avisos.xlsx"
+
+
+def test_ready_to_publish_returns_original_bytes_untouched():
+    data = GOOD.read_bytes()
+    assert not is_annotated(data)
+    assert ready_to_publish(data) == data
+
+
+def test_ready_to_publish_strips_previous_annotation(tmp_path):
+    report = validate_file(GOOD, load_config())
+    annotated = annotate(GOOD.read_bytes(), report)
+    assert is_annotated(annotated)
+    clean = ready_to_publish(annotated)
+    wb = load_workbook(__import__("io").BytesIO(clean))
+    assert SUMMARY_SHEET not in wb.sheetnames
+    assert wb.sheetnames == ["survey", "choices", "settings"]
+    for ws in wb.worksheets:
+        for row in ws.iter_rows():
+            for cell in row:
+                assert cell.comment is None
+    out = tmp_path / "pronto.xlsx"
+    out.write_bytes(clean)
+    convert(xlsform=str(out))
+
+
+def test_ready_to_publish_keeps_team_formatting(tmp_path):
+    # Remove só as cores do validador; a formatação da equipe (cabeçalho azul) fica.
+    data = BAD.read_bytes()
+    report = validate_file(BAD, load_config())
+    clean = load_workbook(__import__("io").BytesIO(ready_to_publish(annotate(data, report))))
+    header = clean["survey"]["A1"]
+    assert header.fill.fill_type == "solid" and header.fill.fgColor.rgb.endswith("DDEBF7")
+    assert clean["survey"]["B3"].fill.fill_type is None  # linha que o validador havia pintado
+
+
+def run_web(tmp_path, path):
+    out = json.loads(
+        validate_for_web(str(path), Path(path).name, str(RULES), str(tmp_path / "a.xlsx"), str(tmp_path / "p.xlsx"))
+    )
+    return out, (tmp_path / "p.xlsx")
+
+
+def test_web_ready_only_when_no_errors(tmp_path):
+    good, ready_file = run_web(tmp_path, GOOD)
+    assert good["ready"] is True and good["ready_cleaned"] is False
+    assert ready_file.read_bytes() == GOOD.read_bytes()
+
+    bad_dir = tmp_path / "ruim"
+    bad_dir.mkdir()
+    bad, bad_ready = run_web(bad_dir, BAD)
+    assert bad["ready"] is False and not bad_ready.exists()
+
+
+def test_web_ready_with_warnings_only(tmp_path):
+    result, ready_file = run_web(tmp_path, AVISOS)
+    assert result["report"]["status"] == "aprovado_com_avisos"
+    assert result["ready"] is True and ready_file.exists()
+
+
+def test_web_ready_cleans_annotated_upload(tmp_path):
+    report = validate_file(GOOD, load_config())
+    upload = tmp_path / "abrigo_bom_anotado.xlsx"
+    upload.write_bytes(annotate(GOOD.read_bytes(), report))
+    result, ready_file = run_web(tmp_path, upload)
+    assert result["ready"] is True and result["ready_cleaned"] is True
+    assert not is_annotated(ready_file.read_bytes())
