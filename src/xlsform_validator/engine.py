@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass, field
 from importlib import resources
 from pathlib import Path
 from typing import Callable
-
-import yaml
 
 from .form import Form
 
@@ -22,6 +21,8 @@ class Finding:
     sheet: str | None = None
     row: int | None = None
     suggestion: str | None = None
+    # Coluna da planilha onde está o problema (usada para anotar a célula exata).
+    column: str | None = None
     # Preenchidos pelo motor a partir da configuração:
     rule_id: str = ""
     group: str = ""
@@ -73,13 +74,24 @@ def default_rules_path() -> Path:
 
 
 def load_config(path: str | Path | None = None) -> list[RuleConfig]:
-    from . import rules  # noqa: F401  (registra as implementações)
-
+    """Carrega as regras de um arquivo YAML (ou JSON, usado na versão web)."""
     path = Path(path) if path else default_rules_path()
     try:
-        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    except (OSError, yaml.YAMLError) as exc:
+        text = path.read_text(encoding="utf-8")
+        if path.suffix.lower() == ".json":
+            raw = json.loads(text)
+        else:
+            import yaml  # importado aqui: a versão web usa JSON e não carrega o PyYAML
+
+            raw = yaml.safe_load(text)
+    except Exception as exc:  # OSError, YAMLError, JSONDecodeError
         raise ConfigError(f"Não foi possível ler o arquivo de regras '{path}': {exc}") from exc
+    return parse_config(raw or {})
+
+
+def parse_config(raw: dict) -> list[RuleConfig]:
+    """Valida e converte a estrutura de regras (já lida do YAML/JSON)."""
+    from . import rules  # noqa: F401  (registra as implementações)
 
     rules_raw = raw.get("regras")
     if not isinstance(rules_raw, dict):

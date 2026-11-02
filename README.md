@@ -11,10 +11,18 @@
 > conversion and, optionally, ODK Validate. It outputs a Markdown and JSON report pointing to the exact
 > sheet and row to fix, exits non-zero on errors, and comments the result on pull requests.
 > Rules live in a YAML file with severity and rationale, so teams can adapt the standard without
-> touching code. All examples are fictitious.
+> touching code. A **web version** runs the same Python validator entirely in the browser
+> (Pyodide, no server: the file never leaves the user's computer) and returns the user's own
+> spreadsheet with the problems highlighted and commented cell by cell. All examples are fictitious.
 
 Valida formulários XLSForm (KoboToolbox / ODK) contra um padrão de qualidade e governança de dados
 **antes** de irem a campo, e gera um relatório claro do que corrigir, com aba, linha e sugestão.
+
+### ▶ Use agora, sem instalar nada: **[agdala.github.io/xlsform-validator](https://agdala.github.io/xlsform-validator/)**
+
+Arraste a planilha do formulário, veja o resultado e baixe a **sua planilha anotada**, com cada
+problema marcado na célula onde está. O arquivo é processado no seu navegador e **não é enviado a
+nenhum servidor**.
 
 ---
 
@@ -49,7 +57,12 @@ formulario.xlsx ──► leitura (openpyxl, com nº real das linhas)
           relatório Markdown + JSON  ──►  código de saída 0 / 1 / 2
                          │
                          ▼
-          GitHub Action: comentário no PR + bloqueio do merge se houver erro
+     ┌───────────────────┬────────────────────┬──────────────────────────┐
+     │ Versão web        │ Linha de comando   │ GitHub Action            │
+     │ quem cria o       │ analistas e        │ governança: comentário   │
+     │ formulário        │ automações         │ no PR e bloqueio do merge│
+     │ + planilha anotada│ + --anotar         │ se houver erro           │
+     └───────────────────┴────────────────────┴──────────────────────────┘
 ```
 
 - **Padrão explícito e versionado.** As regras ficam em um YAML com ID, severidade e o motivo de
@@ -59,6 +72,12 @@ formulario.xlsx ──► leitura (openpyxl, com nº real das linhas)
 - **Revisão automática no fluxo de trabalho.** Formulários ficam na pasta `forms/` do repositório;
   todo pull request que adiciona ou altera um formulário é validado e recebe o relatório como
   comentário.
+- **Correção onde o problema está.** A planilha anotada devolve o próprio arquivo do usuário com as
+  linhas coloridas, um comentário em cada célula com problema e uma aba de resumo com links. Quem
+  não é técnico não precisa interpretar "aba survey, linha 12".
+- **Dois públicos, o mesmo padrão.** A versão web atende quem monta o formulário (autoatendimento,
+  sem instalar nada). A GitHub Action atende a equipe de governança (controle central). As duas
+  usam exatamente as mesmas regras.
 - **Erro x aviso.** Erros bloqueiam (código de saída 1); avisos orientam sem travar a equipe.
 
 ## 3. Regras
@@ -318,12 +337,12 @@ xlsform-validator examples/abrigo_ruim.xlsx
 
 | Aba | Linha | Problema | Como corrigir |
 |---|---:|---|---|
-| survey | 3 | 'NomeCompleto': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 10 | 'pessoas_família': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 11 | 'violencias_sofridas': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 12 | 'recebe_auxilio': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 14 | 'abrigo': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| choices | 9 | 'racismo_estrutural': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
+| survey | 3 | 'NomeCompleto': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 10 | 'pessoas_família': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 11 | 'violencias_sofridas': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 12 | 'recebe_auxilio': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 14 | 'abrigo': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| choices | 9 | 'racismo_estrutural': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
 
 **❌ LGPD-02 · Todo campo com dado pessoal tem justificativa documentada na coluna justificativa_dados_pessoais.**
 
@@ -406,7 +425,7 @@ xlsform-validator examples/abrigo_ruim.xlsx
 
 | Aba | Linha | Problema | Como corrigir |
 |---|---:|---|---|
-| choices | 3 | pyxform: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names. | - |
+| choices | 3 | pyxform: Há duas opções com o mesmo código (coluna name) na mesma lista da aba 'choices'. | Mensagem original: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names. |
 
 **❌ VAL-01 · Campos de idade têm constraint com limite inferior (>= 0) e superior plausível.**
 
@@ -497,7 +516,42 @@ xlsform-validator examples/abrigo_ruim.xlsx
 
 ## 5. Como usar
 
-### 5.1 Localmente
+### 5.1 No navegador (para quem monta o formulário)
+
+1. Abra **[agdala.github.io/xlsform-validator](https://agdala.github.io/xlsform-validator/)**.
+2. No KoboToolbox, abra o projeto, clique em **⋯** e depois em **Download XLS** (ou use a planilha que você já tem).
+3. Arraste o arquivo `.xlsx` para a página.
+4. Leia o resultado: **erros** precisam ser corrigidos, **avisos** são recomendações.
+5. Clique em **Baixar planilha anotada**, corrija no Excel e valide de novo.
+
+Na planilha anotada:
+
+| Elemento | Significado |
+|---|---|
+| Linha vermelha clara | A linha tem pelo menos um erro |
+| Linha amarela clara | A linha tem só avisos |
+| Célula em tom mais forte, com comentário | O ponto exato do problema; passe o mouse para ler o que corrigir |
+| Aba `validacao` (primeira aba) | Lista de todos os problemas, com links para as células. Apague antes de publicar |
+
+Exemplo: [`examples/abrigo_ruim_anotado.xlsx`](examples/abrigo_ruim_anotado.xlsx).
+
+**Como funciona por dentro:** a página carrega o [Pyodide](https://pyodide.org) (Python compilado
+para WebAssembly) e roda o mesmo pacote Python da linha de comando. Todos os arquivos são servidos
+pelo próprio GitHub Pages, sem CDN externo. O teste automatizado da página verifica que **nenhuma
+requisição sai do site** durante a validação. Na primeira visita o navegador baixa cerca de
+18 MB (uma única vez; depois fica em cache) e o validador leva de 5 a 20 segundos para ficar pronto.
+
+**Para publicar a sua própria cópia:** em **Settings → Pages → Build and deployment → Source**,
+escolha **GitHub Actions**. O workflow
+[`publicar-web.yml`](.github/workflows/publicar-web.yml) monta o site, testa em um navegador real
+e publica a cada merge na `main`. Para testar localmente:
+
+```bash
+python scripts/build_web.py
+python -m http.server -d site 8000
+```
+
+### 5.2 Localmente (linha de comando)
 
 Requisitos: Python 3.10+. Java 8+ só é necessário para o ODK Validate (opcional).
 
@@ -532,11 +586,12 @@ xlsform-validator formulario.xlsx --odk-validate
 | `--regras ARQUIVO.yaml` | Usa um padrão de regras personalizado |
 | `--exportar-regras ARQUIVO.yaml` | Copia o padrão embutido para você editar |
 | `--odk-validate` | Liga a regra TEC-03 (requer Java) |
+| `--anotar` | Gera `<nome>_anotado.xlsx` com os problemas marcados nas células |
 
 **Códigos de saída:** `0` aprovado (com ou sem avisos), `1` há pelo menos um erro, `2` arquivo
 ilegível ou configuração inválida. Isso permite usar a ferramenta em qualquer pipeline de CI.
 
-### 5.2 No GitHub (validação automática em pull requests)
+### 5.3 No GitHub (validação automática em pull requests)
 
 O workflow [`.github/workflows/validar-formularios.yml`](.github/workflows/validar-formularios.yml):
 
@@ -621,6 +676,11 @@ carregamento falha se houver regra no YAML sem implementação, o que evita regr
 | **Exemplos gerados por script** | Qualquer pessoa pode auditar o que há nos `.xlsx` e recriá-los; nenhum dado real é usado. |
 | **Um comentário por PR, atualizado** | Evita poluir a conversa do PR com um comentário a cada push. |
 | **Relatório em português, chaves do JSON em inglês** | O relatório é lido pela equipe; o JSON é consumido por outras ferramentas. |
+| **Versão web com Python no navegador (Pyodide)**, em vez de reescrever as regras em JavaScript | Um único código de regras para web, terminal e CI: sem duplicar lógica nem testes. E o arquivo não sai do computador do usuário, o que é coerente com o tema de proteção de dados e facilita a adoção em organizações. |
+| **Sem servidor e sem CDN externo** | Custo zero, nada para manter ou cair, e nenhuma terceira parte recebe dados ou metadados de uso. Pyodide e dependências são empacotados no build. |
+| **Planilha anotada como saída principal da web** | O público da web não é técnico: ver a célula marcada no próprio Excel é mais rápido do que traduzir "aba, linha" de um relatório. |
+| **Mensagens do pyxform traduzidas** | As mais comuns viram português simples; a original continua disponível para quem precisar. |
+| **Teste ponta a ponta em navegador real no CI** | Garante que a página publicada funciona, cabe no celular e não faz requisições externas. |
 
 Estrutura do código:
 
@@ -631,9 +691,14 @@ src/xlsform_validator/
   rules/         uma implementação por grupo de regras
   rules.yaml     padrão de qualidade embutido
   report.py      relatórios Markdown e JSON, status e código de saída
+  annotate.py    planilha anotada (cores, comentários e aba de resumo)
+  pyxform_messages.py  tradução das mensagens do pyxform
+  web.py         ponto de entrada da versão web
   cli.py         linha de comando
-tests/           74 testes pytest (cada regra tem casos que passam e que falham)
-scripts/         gerador dos formulários de exemplo
+web/             página (HTML, CSS, JavaScript) e worker que roda o Python no navegador
+tests/           83 testes pytest (cada regra tem casos que passam e que falham)
+tests/web/       teste ponta a ponta da página (Playwright)
+scripts/         gerador dos exemplos e montagem do site (build_web.py)
 examples/        formulários fictícios e relatórios gerados
 forms/           pasta monitorada pela GitHub Action
 ```
@@ -658,6 +723,11 @@ pytest
 - **Problemas de conteúdo ficam fora.** Opções que juntam dois conceitos ("xenofobia e
   homofobia"), perguntas duplas ou enviesadas e tradução incorreta (só a ausência é detectada)
   exigem revisão humana. Detectar o "e" no texto geraria falso positivo em "Água e saneamento".
+- **A versão web não roda o ODK Validate** (exige Java) e usa o padrão de regras embutido. Para
+  regras personalizadas ou ODK Validate, use a linha de comando ou a GitHub Action.
+- **A planilha anotada é regravada pelo openpyxl.** Formatação comum é preservada, mas recursos
+  avançados do Excel (macros, imagens, validação de dados com listas externas) podem se perder.
+  Por isso ela serve para orientar a correção; publique a partir do seu arquivo original corrigido.
 - **Só `.xlsx`.** O formato `.xls` antigo e formulários em Google Sheets precisam ser exportados
   para `.xlsx` antes.
 - **Listas externas** (`select_one_from_file`, CSV anexos) não são verificadas.

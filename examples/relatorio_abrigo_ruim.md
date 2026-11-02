@@ -87,12 +87,12 @@
 
 | Aba | Linha | Problema | Como corrigir |
 |---|---:|---|---|
-| survey | 3 | 'NomeCompleto': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 10 | 'pessoas_família': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 11 | 'violencias_sofridas': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 12 | 'recebe_auxilio': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| survey | 14 | 'abrigo': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
-| choices | 9 | 'racismo_estrutural': coluna label sem tradução para Español (es). | Preencha a coluna label::Español (es). |
+| survey | 3 | 'NomeCompleto': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 10 | 'pessoas_família': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 11 | 'violencias_sofridas': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 12 | 'recebe_auxilio': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| survey | 14 | 'abrigo': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
+| choices | 9 | 'racismo_estrutural': coluna label sem tradução para Español (es). | Preencha a(s) coluna(s): label::Español (es). |
 
 **❌ LGPD-02 · Todo campo com dado pessoal tem justificativa documentada na coluna justificativa_dados_pessoais.**
 
@@ -175,7 +175,7 @@
 
 | Aba | Linha | Problema | Como corrigir |
 |---|---:|---|---|
-| choices | 3 | pyxform: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names. | - |
+| choices | 3 | pyxform: Há duas opções com o mesmo código (coluna name) na mesma lista da aba 'choices'. | Mensagem original: [row : 3] On the 'choices' sheet, the 'name' value is invalid. Choice names must be unique for each choice list. If this is intentional, use the setting 'allow_choice_duplicates'. Learn more: https://xlsform.org/#choice-names. |
 
 **❌ VAL-01 · Campos de idade têm constraint com limite inferior (>= 0) e superior plausível.**
 

@@ -5,6 +5,7 @@ Exemplos:
     xlsform-validator forms/*.xlsx --formato json
     xlsform-validator formulario.xlsx --saida relatorios/ --formato md json
     xlsform-validator formulario.xlsx --regras minhas_regras.yaml --odk-validate
+    xlsform-validator formulario.xlsx --anotar
 """
 
 from __future__ import annotations
@@ -32,6 +33,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--saida", type=Path, help="Pasta onde gravar relatorio.md / relatorio.json (padrão: imprime na tela)")
     p.add_argument("--odk-validate", action="store_true", help="Também roda o ODK Validate (requer Java)")
+    p.add_argument(
+        "--anotar", action="store_true",
+        help="Gera <nome>_anotado.xlsx com os problemas marcados nas células (na pasta --saida ou ao lado do original)",
+    )
     p.add_argument("--exportar-regras", type=Path, metavar="ARQUIVO", help="Copia o YAML de regras padrão para personalizar")
     p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return p
@@ -67,6 +72,19 @@ def main(argv: list[str] | None = None) -> int:
             print(to_markdown(reports))
         if "json" in args.formato:
             print(to_json(reports))
+
+    if args.anotar:
+        from .annotate import annotate
+
+        for r in reports:
+            if r.read_error:
+                continue
+            source = Path(r.path)
+            target_dir = args.saida or source.parent
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target = target_dir / f"{source.stem}_anotado.xlsx"
+            target.write_bytes(annotate(source, r))
+            print(f"Planilha anotada gravada em {target}", file=sys.stderr)
 
     for r in reports:
         print(f"{r.path}: {r.status} (erros: {r.errors}, avisos: {r.warnings})", file=sys.stderr)

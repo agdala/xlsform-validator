@@ -108,7 +108,8 @@ def _check_translations(form: Form, bases: list[str]) -> list[Finding]:
                 values = {lang: row.get(_lang_col(base, lang)) for lang in langs}
                 if not any(values.values()):
                     continue
-                missing = [_lang_label(lang) for lang, v in values.items() if not v]
+                missing_langs = [lang for lang, v in values.items() if not v]
+                missing = [_lang_label(lang) for lang in missing_langs]
                 if missing:
                     ident = row.name or row.get("type")
                     out.append(
@@ -116,7 +117,10 @@ def _check_translations(form: Form, bases: list[str]) -> list[Finding]:
                             f"'{ident}': coluna {base} sem tradução para {', '.join(missing)}.",
                             sheet=sheet,
                             row=row.number,
-                            suggestion=f"Preencha a coluna {base}::" + " e ".join(m for m in missing) + ".",
+                            column=_lang_col(base, missing_langs[0]),
+                            suggestion="Preencha a(s) coluna(s): "
+                            + ", ".join(_lang_col(base, lang) for lang in missing_langs)
+                            + ".",
                         )
                     )
     return out
