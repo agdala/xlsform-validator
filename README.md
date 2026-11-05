@@ -1,5 +1,7 @@
 # xlsform-validator
 
+**Português** | [English](README.en.md)
+
 [![Testes](https://github.com/agdala/xlsform-validator/actions/workflows/testes.yml/badge.svg)](https://github.com/agdala/xlsform-validator/actions/workflows/testes.yml)
 [![Versão web](https://github.com/agdala/xlsform-validator/actions/workflows/publicar-web.yml/badge.svg)](https://agdala.github.io/xlsform-validator/)
 [![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
