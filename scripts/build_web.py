@@ -103,6 +103,8 @@ def build(site: Path) -> None:
         shutil.rmtree(site)
     shutil.copytree(ROOT / "web", site)
     (site / ".nojekyll").write_text("")
+    # imagem de prévia social (og:image), mesma de docs/ no repositório
+    shutil.copy2(ROOT / "docs" / "social-preview.png", site / "social-preview.png")
     add_pyodide(site)
     wheels = add_wheels(site)
     add_app(site)
