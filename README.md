@@ -1,20 +1,8 @@
 # xlsform-validator
 
 [![Testes](https://github.com/agdala/xlsform-validator/actions/workflows/testes.yml/badge.svg)](https://github.com/agdala/xlsform-validator/actions/workflows/testes.yml)
+[![Versão web](https://github.com/agdala/xlsform-validator/actions/workflows/publicar-web.yml/badge.svg)](https://agdala.github.io/xlsform-validator/)
 [![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
-
-> **In English.** `xlsform-validator` is a Python CLI and GitHub Action that checks XLSForm
-> questionnaires (the standard used by KoboToolbox, ODK, SurveyCTO, Ona and ArcGIS Survey123) against a configurable data quality and
-> data governance standard *before* they go to the field. It runs 36 rules (structure, variable
-> naming, choice lists, skip logic, value constraints, collection metadata, informed consent,
-> personal data protection, sex and age disaggregation, translations) plus the official `pyxform`
-> conversion and, optionally, ODK Validate. It outputs a Markdown and JSON report pointing to the exact
-> sheet and row to fix, exits non-zero on errors, and comments the result on pull requests.
-> Rules live in a YAML file with severity and rationale, so teams can adapt the standard without
-> touching code. A **web version** runs the same Python validator entirely in the browser
-> (Pyodide, no server: the file never leaves the user's computer) and returns the user's own
-> spreadsheet with the problems highlighted and commented cell by cell, or, once the form passes,
-> a file ready to publish. All examples are fictitious.
 
 Valida formulários XLSForm contra um padrão de qualidade e governança de dados **antes** de irem a
 campo, e gera um relatório claro do que corrigir, com aba, linha e sugestão.
@@ -763,6 +751,34 @@ pytest
 - **A conformidade com a LGPD não é garantida pela ferramenta.** Ela verifica sinais objetivos
   (justificativa registrada, opção de não responder, consentimento), mas finalidade, base legal,
   retenção e segurança da informação dependem de processos da organização.
+
+## English summary
+
+`xlsform-validator` is a Python CLI and GitHub Action that checks XLSForm
+questionnaires (the standard used by KoboToolbox, ODK, SurveyCTO, Ona and ArcGIS Survey123) against a configurable data quality and
+data governance standard *before* they go to the field. It runs 36 rules (structure, variable
+naming, choice lists, skip logic, value constraints, collection metadata, informed consent,
+personal data protection, sex and age disaggregation, translations) plus the official `pyxform`
+conversion and, optionally, ODK Validate. It outputs a Markdown and JSON report pointing to the exact
+sheet and row to fix, exits non-zero on errors, and comments the result on pull requests.
+Rules live in a YAML file with severity and rationale, so teams can adapt the standard without
+touching code. A **web version** runs the same Python validator entirely in the browser
+(Pyodide, no server: the file never leaves the user's computer) and returns the user's own
+spreadsheet with the problems highlighted and commented cell by cell, or, once the form passes,
+a file ready to publish. All examples are fictitious.
+
+## Projetos relacionados
+
+Os quatro repositórios formam um ciclo de dados, da coleta ao monitoramento:
+
+| Etapa | Projeto | O que faz | Publicado |
+|---|---|---|---|
+| 1. Coletar | **xlsform-validator** (este repositório) | Qualidade, consentimento e LGPD em formulários KoboToolbox/ODK | [versão web](https://agdala.github.io/xlsform-validator/) |
+| 2. Transformar e publicar | [sismigra-analytics](https://github.com/agdala/sismigra-analytics) | Pipeline bronze/prata/ouro com Python, DuckDB e dbt, com controle de divulgação | [dbt docs](https://agdala.github.io/sismigra-analytics/) |
+| 3. Integrar | [record-linkage-kit](https://github.com/agdala/record-linkage-kit) | Deduplicação e cruzamento de cadastros, com revisão humana e pseudonimização | [relatório](https://agdala.github.io/record-linkage-kit/) |
+| 4. Monitorar | [monitoring-5w-kit](https://github.com/agdala/monitoring-5w-kit) | Relatos de parceiros, metas e dupla contagem | [relatório](https://agdala.github.io/monitoring-5w-kit/) |
+
+Autoria: Agda Santos, com auxílio de ferramentas de IA.
 
 ## Licença
 
