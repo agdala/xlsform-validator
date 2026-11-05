@@ -8,3 +8,4 @@ relatorios/
 ~$*.xlsx
 site/
 .cache/
+.env
